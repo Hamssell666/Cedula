@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validador de Cédula RD - Algoritmo Luhn</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #003876; margin-bottom: 1.5rem; }
+        input { width: 100%; padding: 12px; margin-bottom: 1rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box; outline: none; transition: border-color 0.3s; }
+        input:focus { border-color: #003876; }
+        #resultado { font-weight: bold; padding: 10px; border-radius: 5px; display: none; margin-top: 1rem; }
+        .correcto { background-color: #d4edda; color: #155724; display: block !important; }
+        .incorrecto { background-color: #f8d7da; color: #721c24; display: block !important; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Validador de Cédula</h2>
+    <p>Formato: 001-0000000-9</p>
+    <input type="text" id="inputCedula" placeholder="Escribe la cédula aquí..." maxlength="13">
+    <div id="resultado"></div>
+</div>
+
+<script>
+    const input = document.getElementById('inputCedula');
+    const resultDiv = document.getElementById('resultado');
+
+    input.addEventListener('input', (e) => {
+        let valor = e.target.value;
+        
+        // Ejecutar validación si tiene el largo suficiente
+        if (valor.replace(/-/g, "").length === 11) {
+            const esValida = validarCedulaRD(valor);
+            resultDiv.innerText = esValida ? "CÉDULA ES CORRECTA" : "CÉDULA ES INCORRECTA";
+            resultDiv.className = esValida ? "correcto" : "incorrecto";
+        } else {
+            resultDiv.className = "";
+            resultDiv.innerText = "";
+        }
+    });
+
+    function validarCedulaRD(cedula) {
+        let n = cedula.replace(/-/g, "").replace(/\s/g, "");
+        if (n.length !== 11 || isNaN(n)) return false;
+
+        let suma = 0;
+        // El peso en RD para el algoritmo de derecha a izquierda suele ser 1, 2, 1, 2...
+        // siendo el último dígito (verificador) multiplicado por 1.
+        for (let i = n.length - 1; i >= 0; i--) {
+            let digito = parseInt(n.charAt(i));
+            let peso = (n.length - 1 - i) % 2 === 0 ? 1 : 2;
+            
+            let mult = digito * peso;
+            if (mult > 9) mult -= 9;
+            suma += mult;
+        }
+        return (suma % 10 === 0);
+    }
+</script>
+
+</body>
+</html>
